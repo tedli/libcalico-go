@@ -21,7 +21,7 @@ require (
 	github.com/kelseyhightower/envconfig v0.0.0-20180517194557-dd1402a4d99d
 	github.com/leodido/go-urn v0.0.0-20181204092800-a67a23e1c1af // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.7.0
 	github.com/projectcalico/go-json v0.0.0-20161128004156-6219dc7339ba // indirect
 	github.com/projectcalico/go-yaml-wrapper v0.0.0-20191112210931-090425220c54
@@ -38,7 +38,6 @@ require (
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/zap v1.13.0 // indirect
 	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
-	golang.org/x/sys v0.0.0-20190826190057-c7b8b68b1456 // indirect
 	google.golang.org/genproto v0.0.0-20191203220235-3fa9dbf08042 // indirect
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
@@ -46,22 +45,21 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.27.0
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tchap/go-patricia.v2 v2.2.6
-	gopkg.in/yaml.v2 v2.2.5 // indirect
 
 	// k8s.io/api v1.16.3 is at 16d7abae0d2a
-	k8s.io/api v0.0.0-20191114100352-16d7abae0d2a
+	k8s.io/api v0.18.5
 
 	// k8s.io/apimachinery 1.16.3 is at 72ed19daf4bb
-	k8s.io/apimachinery v0.0.0-20191028221656-72ed19daf4bb
+	k8s.io/apimachinery v0.18.5
 
 	// k8s.io/client-go 1.16.3 is at 6c5935290e33
-	k8s.io/client-go v0.0.0-20191114101535-6c5935290e33
+	k8s.io/client-go v0.18.5
 
 	// k8s.io/code-generator v1.16.3 is at 8e001e5d1894
-	k8s.io/code-generator v0.0.0-20191004115455-8e001e5d1894
+	k8s.io/code-generator v0.18.5
 
 	// k8s.io/utils is not (tag) versioned
-	k8s.io/utils v0.0.0-20191114200735-6ca3b61696b6 // indirect
+	k8s.io/utils v0.0.0-20200324210504-a9aa75ae1b89 // indirect
 )
 
 replace github.com/sirupsen/logrus => github.com/projectcalico/logrus v1.0.4-calico

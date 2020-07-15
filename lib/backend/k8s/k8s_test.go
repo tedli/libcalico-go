@@ -367,7 +367,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			Get().
 			Resource("networkpolicies").
 			Timeout(10 * time.Second).
-			Do().Into(&nps)
+			Do(context.Background()).Into(&nps)
 		Expect(err).NotTo(HaveOccurred())
 
 		for _, np := range nps.Items {
@@ -377,16 +377,16 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 				Namespace(np.Namespace).
 				Name(np.Name).
 				Timeout(10 * time.Second).
-				Do()
+				Do(context.Background())
 			Expect(result.Error()).NotTo(HaveOccurred())
 		}
 
 		// Clean up any pods left over by the test.
-		pods, err := c.ClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
+		pods, err := c.ClientSet.CoreV1().Pods("").List(context.Background(), metav1.ListOptions{})
 		Expect(err).NotTo(HaveOccurred())
 
 		for _, p := range pods.Items {
-			err = c.ClientSet.CoreV1().Pods(p.Namespace).Delete(p.Name, &metav1.DeleteOptions{})
+			err = c.ClientSet.CoreV1().Pods(p.Namespace).Delete(context.Background(), p.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		syncer.Stop()
@@ -404,7 +404,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		}
 
 		By("Creating a namespace", func() {
-			_, err := c.ClientSet.CoreV1().Namespaces().Create(&ns)
+			_, err := c.ClientSet.CoreV1().Namespaces().Create(context.Background(), &ns, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -430,7 +430,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		})
 
 		By("Deleting the namespace", func() {
-			err := c.ClientSet.CoreV1().Namespaces().Delete(ns.ObjectMeta.Name, &metav1.DeleteOptions{})
+			err := c.ClientSet.CoreV1().Namespaces().Delete(context.Background(), ns.ObjectMeta.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -452,7 +452,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 
 		// Check to see if the create succeeded.
 		By("Creating a namespace", func() {
-			_, err := c.ClientSet.CoreV1().Namespaces().Create(&ns)
+			_, err := c.ClientSet.CoreV1().Namespaces().Create(context.Background(), &ns, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -481,7 +481,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		})
 
 		By("deleting a namespace", func() {
-			err := c.ClientSet.CoreV1().Namespaces().Delete(ns.ObjectMeta.Name, &metav1.DeleteOptions{})
+			err := c.ClientSet.CoreV1().Namespaces().Delete(context.Background(), ns.ObjectMeta.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -524,7 +524,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			Resource("networkpolicies").
 			Namespace("default").
 			Body(&np).
-			Do()
+			Do(context.Background())
 
 		// Check to see if the create succeeded.
 		Expect(res.Error()).NotTo(HaveOccurred())
@@ -937,7 +937,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 
 		// Check to see if the create succeeded.
 		By("Creating a namespace", func() {
-			_, err := c.ClientSet.CoreV1().Namespaces().Create(&ns)
+			_, err := c.ClientSet.CoreV1().Namespaces().Create(context.Background(), &ns, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1014,7 +1014,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		})
 
 		By("Deleting the namespace", func() {
-			err := c.ClientSet.CoreV1().Namespaces().Delete(ns.ObjectMeta.Name, &metav1.DeleteOptions{})
+			err := c.ClientSet.CoreV1().Namespaces().Delete(context.Background(), ns.ObjectMeta.Name, metav1.DeleteOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1407,7 +1407,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 				},
 			},
 		}
-		pod, err := c.ClientSet.CoreV1().Pods("default").Create(pod)
+		pod, err := c.ClientSet.CoreV1().Pods("default").Create(context.Background(), pod, metav1.CreateOptions{})
 		By("Creating a pod", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
@@ -1415,14 +1415,14 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			// Update the Pod to have an IP and be running.
 			pod.Status.PodIP = "192.168.1.1"
 			pod.Status.Phase = k8sapi.PodRunning
-			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 		By("Waiting for the pod to start", func() {
 			// Wait up to 120s for pod to start running.
 			log.Warnf("[TEST] Waiting for pod %s to start", pod.ObjectMeta.Name)
 			for i := 0; i < 120; i++ {
-				p, err := c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+				p, err := c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred())
 				if p.Status.Phase == k8sapi.PodRunning {
 					// Pod is running
@@ -1430,7 +1430,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 				}
 				time.Sleep(1 * time.Second)
 			}
-			p, err := c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+			p, err := c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(p.Status.Phase).To(Equal(k8sapi.PodRunning))
 		})
@@ -1505,7 +1505,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		By("Deleting the Pod and expecting the wep to be deleted", func() {
 			var zero int64
 			policy := metav1.DeletePropagationBackground
-			err := c.ClientSet.CoreV1().Pods("default").Delete(pod.ObjectMeta.Name, &metav1.DeleteOptions{
+			err := c.ClientSet.CoreV1().Pods("default").Delete(context.Background(), pod.ObjectMeta.Name, metav1.DeleteOptions{
 				GracePeriodSeconds: &zero,
 				PropagationPolicy:  &policy,
 			})
@@ -1552,7 +1552,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 
 			By(fmt.Sprintf("Marking the Pod as finished (%v)", finishPhase), func() {
 				pod.Status.Phase = finishPhase
-				pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+				pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -1566,7 +1566,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 
 			By("Marking the Pod as running again", func() {
 				pod.Status.Phase = k8sapi.PodRunning
-				pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+				pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 				Expect(err).NotTo(HaveOccurred())
 			})
 
@@ -1585,7 +1585,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			By("Deleting the Pod and expecting the wep to be deleted", func() {
 				var zero int64
 				policy := metav1.DeletePropagationBackground
-				err := c.ClientSet.CoreV1().Pods("default").Delete(pod.ObjectMeta.Name, &metav1.DeleteOptions{
+				err := c.ClientSet.CoreV1().Pods("default").Delete(context.Background(), pod.ObjectMeta.Name, metav1.DeleteOptions{
 					GracePeriodSeconds: &zero,
 					PropagationPolicy:  &policy,
 				})
@@ -1631,7 +1631,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		By("Removing its IP", func() {
 			pod.Status.PodIP = ""
 			pod.Status.PodIPs = nil
-			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1660,7 +1660,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		}
 		// Note: assigning back to pod variable in order to pick up revision information. If we don't do that then
 		// the call to UpdateStatus() below would succeed, but it would overwrite our annotation patch.
-		pod, err := c.ClientSet.CoreV1().Pods("default").Create(pod)
+		pod, err := c.ClientSet.CoreV1().Pods("default").Create(context.Background(), pod, metav1.CreateOptions{})
 		wepName := "127.0.0.1-k8s-test--syncer--basic--pod-eth0"
 
 		By("Creating a pod", func() {
@@ -1681,7 +1681,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			Expect(err).NotTo(HaveOccurred())
 
 			// Get the pod through the k8s API to check the annotation has appeared.
-			p, err := c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+			p, err := c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(p.Annotations["cni.projectcalico.org/podIP"]).To(Equal("192.168.1.1"))
 
@@ -1695,14 +1695,14 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			// Try to update the pod using the old revision; this should fail because our patch made it
 			// stale.
 			pod.Status.Phase = k8sapi.PodRunning
-			_, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+			_, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 			Expect(err).To(HaveOccurred())
 
 			// Re-get the pod and try again...
-			pod, err = c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+			pod, err = c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			pod.Status.Phase = k8sapi.PodRunning
-			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(pod)
+			pod, err = c.ClientSet.CoreV1().Pods("default").UpdateStatus(context.Background(), pod, metav1.UpdateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -1711,7 +1711,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 			log.Warnf("[TEST] Waiting for pod %s to start", pod.ObjectMeta.Name)
 
 			for i := 0; i < 120; i++ {
-				p, err := c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+				p, err := c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 				Expect(err).NotTo(HaveOccurred())
 				if p.Status.Phase == k8sapi.PodRunning {
 					// Pod is running
@@ -1720,7 +1720,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 				time.Sleep(1 * time.Second)
 			}
 
-			pod, err = c.ClientSet.CoreV1().Pods("default").Get(pod.ObjectMeta.Name, metav1.GetOptions{})
+			pod, err = c.ClientSet.CoreV1().Pods("default").Get(context.Background(), pod.ObjectMeta.Name, metav1.GetOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(pod.Status.Phase).To(Equal(k8sapi.PodRunning))
 			Expect(pod.Annotations["cni.projectcalico.org/podIP"]).To(Equal("192.168.1.1"))
@@ -1748,7 +1748,7 @@ var _ = testutils.E2eDatastoreDescribe("Test Syncer API for Kubernetes backend",
 		By("Deleting the Pod and expecting the wep to be deleted", func() {
 			var zero int64
 			policy := metav1.DeletePropagationBackground
-			err = c.ClientSet.CoreV1().Pods("default").Delete(pod.ObjectMeta.Name, &metav1.DeleteOptions{
+			err = c.ClientSet.CoreV1().Pods("default").Delete(context.Background(), pod.ObjectMeta.Name, metav1.DeleteOptions{
 				GracePeriodSeconds: &zero,
 				PropagationPolicy:  &policy,
 			})
@@ -2179,12 +2179,12 @@ var _ = testutils.E2eDatastoreDescribe("Test Watch support", testutils.Datastore
 					Name: name,
 				},
 			}
-			_, err := c.ClientSet.CoreV1().ServiceAccounts("default").Create(&sa)
+			_, err := c.ClientSet.CoreV1().ServiceAccounts("default").Create(context.Background(), &sa, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		deleteAllServiceAccounts := func() {
 			var zero int64
-			err := c.ClientSet.CoreV1().ServiceAccounts("default").DeleteCollection(&metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
+			err := c.ClientSet.CoreV1().ServiceAccounts("default").DeleteCollection(context.Background(), metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		BeforeEach(func() {
@@ -2228,12 +2228,12 @@ var _ = testutils.E2eDatastoreDescribe("Test Watch support", testutils.Datastore
 					Name: name,
 				},
 			}
-			_, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Create(&np)
+			_, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Create(context.Background(), &np, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		deleteAllNetworkPolicies := func() {
 			var zero int64
-			err := c.ClientSet.NetworkingV1().NetworkPolicies("default").DeleteCollection(&metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
+			err := c.ClientSet.NetworkingV1().NetworkPolicies("default").DeleteCollection(context.Background(), metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		BeforeEach(func() {
@@ -2354,12 +2354,12 @@ var _ = testutils.E2eDatastoreDescribe("Test Watch support", testutils.Datastore
 					Name: name,
 				},
 			}
-			_, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Create(&np)
+			_, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Create(context.Background(), &np, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		deleteAllNetworkPolicies := func() {
 			var zero int64
-			err := c.ClientSet.NetworkingV1().NetworkPolicies("default").DeleteCollection(&metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
+			err := c.ClientSet.NetworkingV1().NetworkPolicies("default").DeleteCollection(context.Background(), metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
 			Expect(err).NotTo(HaveOccurred())
 			err = c.Clean()
 			Expect(err).NotTo(HaveOccurred())
@@ -2407,10 +2407,10 @@ var _ = testutils.E2eDatastoreDescribe("Test Watch support", testutils.Datastore
 
 			// Modify the kubernetes policies
 			for _, name := range []string{"test-net-policy-3", "test-net-policy-4"} {
-				p, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Get(name, metav1.GetOptions{})
+				p, err := c.ClientSet.NetworkingV1().NetworkPolicies("default").Get(context.Background(), name, metav1.GetOptions{})
 				Expect(err).ToNot(HaveOccurred())
 				p.SetLabels(map[string]string{"test": "00"})
-				_, err = c.ClientSet.NetworkingV1().NetworkPolicies("default").Update(p)
+				_, err = c.ClientSet.NetworkingV1().NetworkPolicies("default").Update(context.Background(), p, metav1.UpdateOptions{})
 				Expect(err).ToNot(HaveOccurred())
 			}
 
@@ -2541,12 +2541,12 @@ var _ = testutils.E2eDatastoreDescribe("Test Watch support", testutils.Datastore
 					},
 				},
 			}
-			_, err := c.ClientSet.CoreV1().Pods("default").Create(pod)
+			_, err := c.ClientSet.CoreV1().Pods("default").Create(context.Background(), pod, metav1.CreateOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		deleteAllPods := func() {
 			var zero int64
-			err := c.ClientSet.CoreV1().Pods("default").DeleteCollection(&metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
+			err := c.ClientSet.CoreV1().Pods("default").DeleteCollection(context.Background(), metav1.DeleteOptions{GracePeriodSeconds: &zero}, metav1.ListOptions{})
 			Expect(err).NotTo(HaveOccurred())
 		}
 		BeforeEach(func() {

@@ -190,7 +190,7 @@ func (c *networkPolicyClient) Get(ctx context.Context, key model.Key, revision s
 			Namespace(k.Namespace).
 			Name(policyName).
 			VersionedParams(&metav1.GetOptions{ResourceVersion: k8sRev}, scheme.ParameterCodec).
-			Do().Into(&networkPolicy)
+			Do(context.Background()).Into(&networkPolicy)
 		if err != nil {
 			return nil, K8sErrorToCalico(err, k)
 		}
@@ -259,7 +259,7 @@ func (c *networkPolicyClient) List(ctx context.Context, list model.ListInterface
 		// Add the namespace if requested.
 		req = req.Namespace(l.Namespace)
 	}
-	err = req.Do().Into(&networkPolicies)
+	err = req.Do(context.Background()).Into(&networkPolicies)
 	if err != nil {
 		log.WithError(err).Info("Unable to list K8s Network Policy resources")
 		return nil, K8sErrorToCalico(err, l)
@@ -334,7 +334,7 @@ func (c *networkPolicyClient) Watch(ctx context.Context, list model.ListInterfac
 	var k8sRawWatch kwatch.Interface = kwatch.NewFake()
 	if watchK8s {
 		log.Debugf("Watching networkPolicy (k8s) at revision %q", k8sNPRev)
-		k8sRawWatch, err = c.clientSet.NetworkingV1().NetworkPolicies(rlo.Namespace).Watch(opts)
+		k8sRawWatch, err = c.clientSet.NetworkingV1().NetworkPolicies(rlo.Namespace).Watch(context.Background(), opts)
 		if err != nil {
 			return nil, K8sErrorToCalico(err, list)
 		}

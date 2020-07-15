@@ -111,7 +111,7 @@ func (c *WorkloadEndpointClient) patchPodIP(ctx context.Context, kvp *model.KVPa
 		log.WithError(err).Error("Failed to calculate Pod patch.")
 		return nil, err
 	}
-	pod, err := c.clientSet.CoreV1().Pods(ns).Patch(wepID.Pod, types.StrategicMergePatchType, patch, "status")
+	pod, err := c.clientSet.CoreV1().Pods(ns).Patch(context.Background(), wepID.Pod, types.StrategicMergePatchType, patch, metav1.PatchOptions{}, "status")
 	if err != nil {
 		return nil, K8sErrorToCalico(err, kvp.Key)
 	}
@@ -156,7 +156,7 @@ func (c *WorkloadEndpointClient) Get(ctx context.Context, key model.Key, revisio
 		}
 	}
 
-	pod, err := c.clientSet.CoreV1().Pods(k.Namespace).Get(wepID.Pod, metav1.GetOptions{ResourceVersion: revision})
+	pod, err := c.clientSet.CoreV1().Pods(k.Namespace).Get(context.Background(), wepID.Pod, metav1.GetOptions{ResourceVersion: revision})
 	if err != nil {
 		return nil, K8sErrorToCalico(err, k)
 	}
@@ -200,7 +200,7 @@ func (c *WorkloadEndpointClient) List(ctx context.Context, list model.ListInterf
 	}
 
 	// Otherwise, enumerate all pods in a namespace.
-	pods, err := c.clientSet.CoreV1().Pods(l.Namespace).List(metav1.ListOptions{ResourceVersion: revision})
+	pods, err := c.clientSet.CoreV1().Pods(l.Namespace).List(context.Background(), metav1.ListOptions{ResourceVersion: revision})
 	if err != nil {
 		return nil, K8sErrorToCalico(err, l)
 	}
@@ -250,7 +250,7 @@ func (c *WorkloadEndpointClient) Watch(ctx context.Context, list model.ListInter
 	}
 
 	ns := list.(model.ResourceListOptions).Namespace
-	k8sWatch, err := c.clientSet.CoreV1().Pods(ns).Watch(opts)
+	k8sWatch, err := c.clientSet.CoreV1().Pods(ns).Watch(context.Background(), opts)
 	if err != nil {
 		return nil, K8sErrorToCalico(err, list)
 	}
